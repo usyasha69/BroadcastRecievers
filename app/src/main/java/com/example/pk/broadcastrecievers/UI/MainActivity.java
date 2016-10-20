@@ -1,21 +1,23 @@
-package com.example.pk.broadcastrecievers;
+package com.example.pk.broadcastrecievers.UI;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.bluetooth.BluetoothAdapter;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.BitmapFactory;
 import android.location.LocationManager;
-import android.media.RingtoneManager;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
+
+import com.example.pk.broadcastrecievers.R;
+import com.example.pk.broadcastrecievers.broadcast_receivers.AirplaneModeBroadcastReceiver;
+import com.example.pk.broadcastrecievers.broadcast_receivers.BluetoothBroadcastReceiver;
+import com.example.pk.broadcastrecievers.broadcast_receivers.GpsBroadcastReceiver;
+import com.example.pk.broadcastrecievers.broadcast_receivers.WifiBroadcastReceiver;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -67,13 +69,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        wifiBroadcastReceiver = new WifiBroadcastReceiver();
-        airplaneModeBroadcastReceiver = new AirplaneModeBroadcastReceiver();
-        bluetoothBroadcastReceiver = new BluetoothBroadcastReceiver();
-        gpsBroadcastReceiver = new GpsBroadcastReceiver();
-
         notificationManager = (NotificationManager)
                 getSystemService(Context.NOTIFICATION_SERVICE);
+
+        wifiBroadcastReceiver = new WifiBroadcastReceiver(this, notificationManager);
+        airplaneModeBroadcastReceiver = new AirplaneModeBroadcastReceiver(this, notificationManager);
+        bluetoothBroadcastReceiver = new BluetoothBroadcastReceiver(this, notificationManager);
+        gpsBroadcastReceiver = new GpsBroadcastReceiver(this, notificationManager);
     }
 
     @Override
@@ -180,88 +182,19 @@ public class MainActivity extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
-    private class WifiBroadcastReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String wifiStateIntent = intent.getStringExtra(WIFI_STATE);
-
-            wifiState.setText(String.format("Wifi state: %s", wifiStateIntent));
-
-            if (wifiStateIntent.equals(ENABLED)) {
-                Notification wifiNotification = NotificationCreator.createNotification(
-                        context, WIFI_CONTENT_INTENT_ID, R.drawable.ic_perm_scan_wifi_white_48dp, true
-                        , "Wifi", "Wifi is enabled"
-                        , BitmapFactory.decodeResource(getResources(), R.drawable.ic_perm_scan_wifi_white_48dp)
-                        , "Big brother is watching you!", RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-                        , new long[]{0, 200, 500, 200, 500, 1000});
-
-                notificationManager.notify(WIFI_NOTIFICATION_ID, wifiNotification);
-            }
-        }
+    public void setWifiState(String wifiStateIntent) {
+        wifiState.setText(String.format("Wifi state: %s", wifiStateIntent));
     }
 
-    private class AirplaneModeBroadcastReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String amStateIntent = intent.getStringExtra(AIRPLANE_MODE_STATE);
-
-            airplaneModeState.setText(String.format("Airplane mode state: %s", amStateIntent));
-
-            if (amStateIntent.equals(ENABLED)) {
-                Notification amNotification = NotificationCreator.createNotification(
-                        context, AIRPLANE_MODE_CONTENT_INTENT_ID
-                        , R.drawable.ic_airplanemode_active_white_48dp, true
-                        , "Airplane mode", "Airplane mode is enabled"
-                        , BitmapFactory.decodeResource(getResources(), R.drawable.ic_airplanemode_active_white_48dp)
-                        , "Big Brother protects you!", RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-                        , new long[]{0, 400, 600, 400, 600, 1000});
-
-                notificationManager.notify(AIRPLANE_MODE_NOTIFICATION_ID, amNotification);
-            }
-        }
+    public void setAirplaneModeState(String bluetoothStateIntent) {
+        bluetoothState.setText(String.format("Bluetooth state: %s", bluetoothStateIntent));
     }
 
-    private class BluetoothBroadcastReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String bluetoothStateIntent = intent.getStringExtra(BLUETOOTH_STATE);
-
-            bluetoothState.setText(String.format("Bluetooth state: %s", bluetoothStateIntent));
-
-            if (bluetoothStateIntent.equals(ENABLED)) {
-                Notification bluetoothNotification = NotificationCreator.createNotification(
-                        context, BLUETOOTH_CONTENT_INTENT_ID, R.drawable.ic_bluetooth_white_48dp, true
-                        , "Bluetooth", "Bluetooth in enabled"
-                        , BitmapFactory.decodeResource(getResources(), R.drawable.ic_bluetooth_white_48dp)
-                        , "Big Brother wants to contact you!", RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
-                        , new long[]{0, 100, 700, 100, 700});
-
-                notificationManager.notify(BLUETOOTH_NOTIFICATION_ID, bluetoothNotification);
-            }
-        }
+    public void setBluetoothState(String amStateIntent) {
+        airplaneModeState.setText(String.format("Airplane mode state: %s", amStateIntent));
     }
 
-    private class GpsBroadcastReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String gpsIntent = intent.getStringExtra(GPS_STATE);
-
-            gpsState.setText(String.format("Gps state: %s", gpsIntent));
-
-            if (gpsIntent.equals(ENABLED)) {
-                Notification gpsNotification = NotificationCreator.createNotification(
-                        context, GPS_CONTENT_INTENT_ID, R.drawable.ic_gps_fixed_white_48dp, true
-                        , "GPS", "GPS is enabled"
-                        , BitmapFactory.decodeResource(getResources(), R.drawable.ic_gps_fixed_white_48dp)
-                        , "Big Brother spying on you!", RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALL)
-                        , new long[]{0, 100, 300, 100, 300, 100, 300});
-
-                notificationManager.notify(GPS_NOTIFICATION_ID, gpsNotification);
-            }
-        }
+    public void setGpsState(String gpsStateIntent) {
+        gpsState.setText(String.format("Gps state: %s", gpsStateIntent));
     }
 }

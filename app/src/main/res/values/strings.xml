@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">BroadcastRecievers</string>
+    <string name="ma_wifi_state">Wifi state:</string>
+    <string name="ma_airlane_mode">Airlane mode:</string>
+    <string name="ma_bluetooth_state">Bluetooth state:</string>
+    <string name="ma_gps_state">Gps state:</string>
+    <string name="ma_wifi">wifi</string>
+    <string name="ma_am">am</string>
+    <string name="ma_bluetooth">bluetooth</string>
+    <string name="ma_gps">gps</string>
+</resources>
